@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Copa Mundial Hub 2026</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            slate: {
+              850: '#1e293b',
+              950: '#020617',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    /* Ocultar barra de scroll estética */
+    .scrollbar-none::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-none {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* Animación de fade-in suave */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-amber-500 selection:text-slate-950">
+
+  <!-- HEADER DE LA APP -->
+  <header class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-850 px-4 py-3 shadow-lg">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('dashboard')">
+        <div class="p-2 bg-gradient-to-tr from-amber-500 to-amber-300 rounded-xl text-slate-950 shadow-md shadow-amber-500/10">
+          <i data-lucide="trophy" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h1 class="font-extrabold text-lg tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-200 to-white">
+            MUNDIAL 2026 HUB
+          </h1>
+          <p class="text-[10px] text-slate-400 font-semibold tracking-wider uppercase">Fútbol • Tácticas • Bienestar</p>
+        </div>
+      </div>
+
+      <!-- TEMPORIZADOR REGRESIVO -->
+      <div class="flex items-center gap-2 bg-slate-950/80 px-4 py-1.5 rounded-full border border-amber-500/30 text-xs sm:text-sm">
+        <span class="flex h-2 w-2 relative">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+        </span>
+        <span class="text-slate-400 font-semibold">El Mundial inicia en:</span>
+        <span id="countdown-timer" class="text-amber-400 font-bold tracking-wider">Calculando...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MENÚ DE NAVEGACIÓN -->
+  <nav class="bg-slate-900 border-b border-slate-850 overflow-x-auto scrollbar-none sticky top-[72px] sm:top-[60px] z-40">
+    <div class="max-w-7xl mx-auto flex px-2 whitespace-nowrap" id="nav-tabs">
+      <!-- Los botones de navegación se renderizan aquí dinámicamente -->
+    </div>
+  </nav>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full" id="main-content">
+    <!-- El contenido de la pestaña activa se renderiza aquí dinámicamente -->
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-900 bg-slate-950 py-8 px-4 text-center text-xs text-slate-500 space-y-3 mt-12">
+    <p class="text-slate-400">&copy; 2026 Copa Mundial Hub. Desarrollado de manera óptima para compartir de manera directa.</p>
+    <p class="text-slate-500 max-w-2xl mx-auto">
+      Este portal utiliza datos simulados y sedes oficiales de la Copa Mundial de la FIFA 2026™. Diseñado para ser ligero, veloz y de libre acceso desde cualquier navegador.
+    </p>
+  </footer>
+
+  <!-- LÓGICA DE LA APLICACIÓN (JAVASCRIPT) -->
+  <script>
+    // --- DATOS DE LA APLICACIÓN ---
+    
+    // Sedes y Estadios
+    const STADIUMS_DATA = [
+      {
+        id: 'azteca',
+        name: 'Estadio Azteca',
+        city: 'Ciudad de México',
+        country: 'México',
+        capacity: '83,000',
+        climate: 'Templado de montaña (aprox. 15-26°C en Junio/Julio). Cuidado con la altitud (2,240 metros).',
+        touristInfo: 'Ubicado en Santa Úrsula Coapa. Cerca de Coyoacán, los canales de Xochimilco y museos icónicos. ¡Imperdibles los tacos al pastor tradicionales (pídelos con piña y sin queso para mantenerlos 100% libres de lácteos y deliciosos)!',
+        features: 'Histórico templo del fútbol mundial, único en hospedar partidos de inauguración de tres Copas del Mundo (1970, 1986, 2026).',
+        coords: { x: 45, y: 70 },
+        flag: '🇲🇽'
+      },
+      {
+        id: 'metlife',
+        name: 'MetLife Stadium',
+        city: 'New York/New Jersey',
+        country: 'Estados Unidos',
+        capacity: '82,500',
+        climate: 'Húmedo subtropical con veranos calurosos (aprox. 20-30°C).',
+        touristInfo: 'A minutos de la vibrante isla de Manhattan. Disfruta de musicales de Broadway y Central Park. Si buscas comida reconfortante sin lácteos, los delis neoyorquinos ofrecen deliciosas ensaladas mediterráneas y wraps de pavo con aderezos naturales.',
+        features: 'Sede oficial de la gran FINAL del Mundial el 19 de Julio de 2026.',
+        coords: { x: 82, y: 35 },
+        flag: '🇺🇸'
+      },
+      {
+        id: 'sofi',
+        name: 'SoFi Stadium',
+        city: 'Los Ángeles (Inglewood)',
+        country: 'Estados Unidos',
+        capacity: '70,240',
+        climate: 'Mediterráneo templado, muy soleado y brisa marina fresca (18-24°C).',
+        touristInfo: 'Sede ultra-moderna de California. Visita el Paseo de la Fama y Santa Monica Pier. Aquí la cultura fitness es masiva: encontrarás bowls de acai, jugos prensados en frío y smoothies con base de agua de coco o leches de almendra naturales.',
+        features: 'Estructura translúcida de diseño futurista. Albergará el debut de la selección de Estados Unidos.',
+        coords: { x: 15, y: 45 },
+        flag: '🇺🇸'
+      },
+      {
+        id: 'att',
+        name: 'AT&T Stadium',
+        city: 'Dallas (Arlington)',
+        country: 'Estados Unidos',
+        capacity: '94,000',
+        climate: 'Caluroso con picos de más de 35°C. El estadio cuenta con techo retráctil y climatización interna continua.',
+        touristInfo: 'Explora la cultura vaquera de Texas. Deléitate con el legendario Texas Barbecue (asados ahumados de res o cerdo, libres de lácteos por naturaleza, ideales para intolerantes).',
+        features: 'El estadio de mayor capacidad del torneo, con una pantalla colgante gigante de alta definición de más de 50 metros de largo.',
+        coords: { x: 40, y: 55 },
+        flag: '🇺🇸'
+      }
+    ];
+
+    // Equipos, Plantillas y DTs
+    const TEAMS_DATA = [
+      {
+        id: 'mexico',
+        name: 'México',
+        group: 'A',
+        flag: '🇲🇽',
+        ranking: '15',
+        defaultFormation: '4-3-3',
+        coach: {
+          name: 'Javier Aguirre',
+          age: 67,
+          nationality: 'Mexicano',
+          style: 'Férreo orden defensivo, juego intenso de presión y transiciones rápidas.',
+          achievements: 'Campeón de Copa Oro, vasta experiencia en LaLiga de España y copas mundiales previas.',
+          bio: 'El "Vasco" es un estratega motivador, experto en reconstruir la moral de sus plantillas e inyectar garra competitiva.'
+        },
+        players: [
+          { name: 'Álex Padilla', number: 1, pos: 'GK', club: 'Athletic Club (ESP)', rating: '8.1', role: 'Portero de grandes reflejos' },
+          { name: 'César Montes', number: 3, pos: 'DF', club: 'Lokomotiv (RUS)', rating: '8.2', role: 'Central de gran envergadura' },
+          { name: 'Johan Vásquez', number: 5, pos: 'DF', club: 'Genoa (ITA)', rating: '8.3', role: 'Defensa con excelente salida' },
+          { name: 'Jorge Sánchez', number: 2, pos: 'DF', club: 'Cruz Azul (MEX)', rating: '7.9', role: 'Lateral de ida y vuelta' },
+          { name: 'Jesús Gallardo', number: 17, pos: 'DF', club: 'Toluca (MEX)', rating: '8.0', role: 'Carrilero profundo' },
+          { name: 'Edson Álvarez', number: 4, pos: 'MC', club: 'West Ham (ENG)', rating: '8.7', role: 'Pivote destructor y salida' },
+          { name: 'Luis Chávez', number: 24, pos: 'MC', club: 'Dinamo Moscú (RUS)', rating: '8.4', role: 'Especialista en tiros libres' },
+          { name: 'Luis Romo', number: 6, pos: 'MC', club: 'Cruz Azul (MEX)', rating: '8.0', role: 'Mediocampista de contención' },
+          { name: 'Santiago Giménez', number: 9, pos: 'FW', club: 'Feyenoord (NED)', rating: '8.6', role: 'Goleador nato en el área' },
+          { name: 'César Huerta', number: 21, pos: 'FW', club: 'Pumas (MEX)', rating: '8.2', role: 'Extremo encarador' },
+          { name: 'Roberto Alvarado', number: 25, pos: 'FW', club: 'Chivas (MEX)', rating: '8.1', role: 'Volante creativo e inventivo' }
+        ]
+      },
+      {
+        id: 'argentina',
+        name: 'Argentina',
+        group: 'J',
+        flag: '🇦🇷',
+        ranking: '3',
+        defaultFormation: '4-3-3',
+        coach: {
+          name: 'Lionel Scaloni',
+          age: 48,
+          nationality: 'Argentino',
+          style: 'Flexibilidad táctica, posesión rápida y juego de alta intensidad en bloque medio.',
+          achievements: 'Campeón del Mundo Catar 2022, Bicampeón de América (2021, 2024).',
+          bio: 'Líder del proyecto de la "Scaloneta". Consiguió el periodo de mayor éxito moderno de la Albiceleste uniendo veteranía y juventud.'
+        },
+        players: [
+          { name: 'E. Martínez', number: 23, pos: 'GK', club: 'Aston Villa (ENG)', rating: '9.0', role: 'Muralla mental y de arco' },
+          { name: 'C. Romero', number: 13, pos: 'DF', club: 'Tottenham (ENG)', rating: '9.1', role: 'Central agresivo y anticipador' },
+          { name: 'N. Otamendi', number: 19, pos: 'DF', club: 'Benfica (POR)', rating: '8.4', role: 'Fuerza física y experiencia' },
+          { name: 'N. Molina', number: 26, pos: 'DF', club: 'Atlético Madrid (ESP)', rating: '8.3', role: 'Veloz en transiciones externas' },
+          { name: 'N. Tagliafico', number: 3, pos: 'DF', club: 'Lyon (FRA)', rating: '8.2', role: 'Firmeza de marca y despliegue' },
+          { name: 'E. Fernández', number: 24, pos: 'MC', club: 'Chelsea (ENG)', rating: '8.8', role: 'Distribuidor y metrónomo' },
+          { name: 'A. Mac Allister', number: 20, pos: 'MC', club: 'Liverpool (ENG)', rating: '8.9', role: 'Lector inteligente de espacios' },
+          { name: 'R. De Paul', number: 7, pos: 'MC', club: 'Atlético Madrid (ESP)', rating: '8.7', role: 'Motor incansable de ida y vuelta' },
+          { name: 'Lionel Messi', number: 10, pos: 'FW', club: 'Inter Miami (USA)', rating: '9.8', role: 'Creador de juego absoluto' },
+          { name: 'Lautaro Martínez', number: 22, pos: 'FW', club: 'Inter Milán (ITA)', rating: '9.1', role: 'Definidor letal en el área' },
+          { name: 'Julián Álvarez', number: 9, pos: 'FW', club: 'Atlético Madrid (ESP)', rating: '8.9', role: 'Presión defensiva y potencia' }
+        ]
+      },
+      {
+        id: 'espana',
+        name: 'España',
+        group: 'H',
+        flag: '🇪🇸',
+        ranking: '8',
+        defaultFormation: '4-3-3',
+        coach: {
+          name: 'Luis de la Fuente',
+          age: 64,
+          nationality: 'Español',
+          style: 'Posesión dinámica con extremos ultra veloces y presión post-pérdida.',
+          achievements: 'Campeón de la Eurocopa 2024, Campeón UEFA Nations League.',
+          bio: 'Logró evolucionar el clásico estilo de pases de España hacia un ataque vertical, atrevido y altamente resolutivo.'
+        },
+        players: [
+          { name: 'Unai Simón', number: 23, pos: 'GK', club: 'Athletic Club (ESP)', rating: '8.5', role: 'Especialista en achiques' },
+          { name: 'Robin Le Normand', number: 3, pos: 'DF', club: 'Atlético Madrid (ESP)', rating: '8.4', role: 'Fuerza aérea defensiva' },
+          { name: 'Aymeric Laporte', number: 14, pos: 'DF', club: 'Al-Nassr (KSA)', rating: '8.5', role: 'Estructurador desde la zaga' },
+          { name: 'Dani Carvajal', number: 2, pos: 'DF', club: 'Real Madrid (ESP)', rating: '8.9', role: 'Espíritu de lucha por la banda' },
+          { name: 'Marc Cucurella', number: 24, pos: 'DF', club: 'Chelsea (ENG)', rating: '8.3', role: 'Recuperador intenso y carrilero' },
+          { name: 'Rodri Hernández', number: 16, pos: 'MC', club: 'Manchester City (ENG)', rating: '9.7', role: 'Ancla táctica y pilar del mediocampo' },
+          { name: 'Pedri González', number: 8, pos: 'MC', club: 'FC Barcelona (ESP)', rating: '9.2', role: 'Visión privilegiada e inteligencia' },
+          { name: 'Fabián Ruiz', number: 17, pos: 'MC', club: 'PSG (FRA)', rating: '8.6', role: 'Lanzador y llegador secundario' },
+          { name: 'Lamine Yamal', number: 19, pos: 'FW', club: 'FC Barcelona (ESP)', rating: '9.5', role: 'Gambeta y desborde estelar' },
+          { name: 'Nico Williams', number: 11, pos: 'FW', club: 'Athletic Club (ESP)', rating: '9.1', role: 'Aceleración indomable' },
+          { name: 'Álvaro Morata', number: 7, pos: 'FW', club: 'AC Milan (ITA)', rating: '8.4', role: 'Delantero de desmarque y arrastre' }
+        ]
+      }
+    ];
+
+    // Goleadores Proyectados
+    const GOLEADORES_DATA = [
+      { rank: 1, name: 'Kylian Mbappé', country: 'Francia', flag: '🇫🇷', goals: 8, assists: 3, matches: 6, club: 'Real Madrid' },
+      { rank: 2, name: 'Lionel Messi', country: 'Argentina', flag: '🇦🇷', goals: 6, assists: 4, matches: 7, club: 'Inter Miami' },
+      { rank: 3, name: 'Santiago Giménez', country: 'México', flag: '🇲🇽', goals: 5, assists: 1, matches: 4, club: 'Feyenoord' },
+      { rank: 4, name: 'Lamine Yamal', country: 'España', flag: '🇪🇸', goals: 4, assists: 5, matches: 6, club: 'FC Barcelona' },
+      { rank: 5, name: 'Vinícius Júnior', country: 'Brasil', flag: '🇧🇷', goals: 4, assists: 3, matches: 5, club: 'Real Madrid' }
+    ];
+
+    // Partidos Base del Simulador
+    const MATCHES_DATA = [
+      {
+        id: 1,
+        home: 'México',
+        away: 'Sudáfrica',
+        homeFlag: '🇲🇽',
+        awayFlag: '🇿🇦',
+        group: 'A',
+        stadiumId: 'azteca',
+        stadiumName: 'Estadio Azteca',
+        city: 'Ciudad de México',
+        date: '11 de Junio, 2026',
+        time: '13:00 Local',
+        stage: 'Grupo A • Fecha 1',
+        predictedHome: '',
+        predictedAway: '',
+        simulated: false
+      },
+      {
+        id: 2,
+        home: 'Corea del Sur',
+        away: 'Chequia',
+        homeFlag: '🇰🇷',
+        awayFlag: '🇨🇿',
+        group: 'A',
+        stadiumId: 'azteca',
+        stadiumName: 'Estadio Guadalajara',
+        city: 'Guadalajara',
+        date: '11 de Junio, 2026',
+        time: '20:00 Local',
+        stage: 'Grupo A • Fecha 1',
+        predictedHome: '',
+        predictedAway: '',
+        simulated: false
+      },
+      {
+        id: 3,
+        home: 'EE. UU.',
+        away: 'Paraguay',
+        homeFlag: '🇺🇸',
+        awayFlag: '🇵🇾',
+        group: 'D',
+        stadiumId: 'sofi',
+        stadiumName: 'SoFi Stadium',
+        city: 'Los Ángeles',
+        date: '12 de Junio, 2026',
+        time: '18:00 Local',
+        stage: 'Grupo D • Fecha 1',
+        predictedHome: '',
+        predictedAway: '',
+        simulated: false
+      },
+      {
+        id: 4,
+        home: 'Australia',
+        away: 'Türkiye',
+        homeFlag: '🇦🇺',
+        awayFlag: '🇹🇷',
+        group: 'D',
+        stadiumId: 'att',
+        stadiumName: 'AT&T Stadium',
+        city: 'Dallas',
+        date: '12 de Junio, 2026',
+        time: '21:00 Local',
+        stage: 'Grupo D • Fecha 1',
+        predictedHome: '',
+        predictedAway: '',
+        simulated: false
+      }
+    ];
+
+    // --- ESTADO GLOBAL DE LA APLICACIÓN ---
+    const state = {
+      activeTab: 'dashboard',
+      searchQuery: '',
+      selectedGroup: 'All',
+      selectedStadiumId: 'azteca',
+      selectedTeamId: 'mexico',
+      selectedPlayerIndex: 8, // Santiago Giménez por defecto
+      currentFormation: '4-3-3',
+      matches: JSON.parse(JSON.stringify(MATCHES_DATA)), // Copia profunda de partidos
+      simulatedStandings: {
+        'A': [
+          { name: 'México', flag: '🇲🇽', pts: 0, pj: 0, gd: 0 },
+          { name: 'Sudáfrica', flag: '🇿🇦', pts: 0, pj: 0, gd: 0 },
+          { name: 'Corea del Sur', flag: '🇰🇷', pts: 0, pj: 0, gd: 0 },
+          { name: 'Chequia', flag: '🇨🇿', pts: 0, pj: 0, gd: 0 }
+        ],
+        'D': [
+          { name: 'EE. UU.', flag: '🇺🇸', pts: 0, pj: 0, gd: 0 },
+          { name: 'Paraguay', flag: '🇵🇾', pts: 0, pj: 0, gd: 0 },
+          { name: 'Australia', flag: '🇦🇺', pts: 0, pj: 0, gd: 0 },
+          { name: 'Türkiye', flag: '🇹🇷', pts: 0, pj: 0, gd: 0 }
+        ]
+      }
+    };
+
+    // --- MANEJO DEL CONTADOR ---
+    function updateCountdown() {
+      const target = new Date('2026-06-11T13:00:00');
+      const now = new Date();
+      const difference = target.getTime() - now.getTime();
+      const timerElement = document.getElementById('countdown-timer');
+      
+      if (!timerElement) return;
+
+      if (difference <= 0) {
+        timerElement.textContent = "¡EL MUNDIAL ESTÁ EN MARCHA!";
+      } else {
+        const d = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const h = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        timerElement.textContent = `${d}d ${h}h ${m}m`;
+      }
+    }
+    setInterval(updateCountdown, 60000);
+    updateCountdown();
+
+    // --- RECALCULAR POSICIONES DEL SIMULADOR ---
+    function recalculateStandings() {
+      const groupA = [
+        { name: 'México', flag: '🇲🇽', pts: 0, pj: 0, gd: 0 },
+        { name: 'Sudáfrica', flag: '🇿🇦', pts: 0, pj: 0, gd: 0 },
+        { name: 'Corea del Sur', flag: '🇰🇷', pts: 0, pj: 0, gd: 0 },
+        { name: 'Chequia', flag: '🇨🇿', pts: 0, pj: 0, gd: 0 }
+      ];
+      const groupD = [
+        { name: 'EE. UU.', flag: '🇺🇸', pts: 0, pj: 0, gd: 0 },
+        { name: 'Paraguay', flag: '🇵🇾', pts: 0, pj: 0, gd: 0 },
+        { name: 'Australia', flag: '🇦🇺', pts: 0, pj: 0, gd: 0 },
+        { name: 'Türkiye', flag: '🇹🇷', pts: 0, pj: 0, gd: 0 }
+      ];
+
+      state.matches.forEach(m => {
+        if (m.simulated) {
+          const hS = parseInt(m.predictedHome);
+          const aS = parseInt(m.predictedAway);
+          
+          let currentGroupArr = null;
+          if (m.group === 'A') currentGroupArr = groupA;
+          if (m.group === 'D') currentGroupArr = groupD;
+
+          if (currentGroupArr) {
+            const homeTeam = currentGroupArr.find(t => t.name === m.home);
+            const awayTeam = currentGroupArr.find(t => t.name === m.away);
+
+            if (homeTeam && awayTeam) {
+              homeTeam.pj += 1;
+              awayTeam.pj += 1;
+              homeTeam.gd += (hS - aS);
+              awayTeam.gd += (aS - hS);
+
+              if (hS > aS) {
+                homeTeam.pts += 3;
+              } else if (hS < aS) {
+                awayTeam.pts += 3;
+              } else {
+                homeTeam.pts += 1;
+                awayTeam.pts += 1;
+              }
+            }
+          }
+        }
+      });
+
+      const sortFn = (a, b) => {
+        if (b.pts !== a.pts) return b.pts - a.pts;
+        if (b.gd !== a.gd) return b.gd - a.gd;
+        return a.name.localeCompare(b.name);
+      };
+
+      state.simulatedStandings['A'] = groupA.sort(sortFn);
+      state.simulatedStandings['D'] = groupD.sort(sortFn);
+    }
+
+    // --- EVENTOS INTERACTIVOS ---
+    function switchTab(tabId) {
+      state.activeTab = tabId;
+      renderApp();
+    }
+
+    function handleScoreChange(matchId, side, val) {
+      const match = state.matches.find(m => m.id === matchId);
+      if (!match) return;
+
+      if (val === '') {
+        if (side === 'home') match.predictedHome = '';
+        if (side === 'away') match.predictedAway = '';
+      } else {
+        const intVal = parseInt(val, 10);
+        if (isNaN(intVal)) return;
+        if (side === 'home') match.predictedHome = intVal;
+        if (side === 'away') match.predictedAway = intVal;
+      }
+
+      if (match.predictedHome !== '' && match.predictedAway !== '') {
+        match.simulated = true;
+      } else {
+        match.simulated = false;
+      }
+
+      recalculateStandings();
+      
+      // Renderizado parcial rápido para no perder el foco de los inputs
+      if (state.activeTab === 'matches') {
+        renderMatches();
+      } else if (state.activeTab === 'simulator') {
+        renderSimulator();
+      }
+    }
+
+    function resetSimulator() {
+      state.matches = JSON.parse(JSON.stringify(MATCHES_DATA));
+      recalculateStandings();
+      renderApp();
+    }
+
+    function changeFormation(form) {
+      state.currentFormation = form;
+      renderTeams();
+    }
+
+    // Coordenadas tácticas en porcentaje (left, top) según el esquema táctico
+    function getPlayerPositions(formation) {
+      switch(formation) {
+        case '4-2-3-1':
+          return [
+            { left: 50, top: 86, index: 0 }, // GK
+            { left: 15, top: 72, index: 4 }, // RDF
+            { left: 38, top: 74, index: 1 }, // LDF
+            { left: 62, top: 74, index: 2 }, // CB
+            { left: 85, top: 72, index: 3 }, // CB
+            { left: 35, top: 58, index: 5 }, // LMC
+            { left: 65, top: 58, index: 6 }, // RMC
+            { left: 20, top: 38, index: 9 }, // LAM (Extremo Izq)
+            { left: 50, top: 42, index: 7 }, // AMC (Enganche)
+            { left: 80, top: 38, index: 10 }, // RAM (Extremo Der)
+            { left: 50, top: 18, index: 8 }  // ST
+          ];
+        case '4-4-2':
+          return [
+            { left: 50, top: 86, index: 0 }, // GK
+            { left: 15, top: 72, index: 3 }, // LD
+            { left: 38, top: 74, index: 1 }, // CB
+            { left: 62, top: 74, index: 2 }, // CB
+            { left: 85, top: 72, index: 4 }, // RD
+            { left: 18, top: 48, index: 9 }, // LM
+            { left: 38, top: 52, index: 5 }, // MC
+            { left: 62, top: 52, index: 6 }, // MC
+            { left: 82, top: 48, index: 10 }, // RM
+            { left: 35, top: 22, index: 7 }, // FW1
+            { left: 65, top: 22, index: 8 }  // FW2
+          ];
+        case '4-3-3':
+        default:
+          return [
+            { left: 50, top: 86, index: 0 }, // GK
+            { left: 15, top: 72, index: 3 }, // LD
+            { left: 38, top: 74, index: 1 }, // CB
+            { left: 62, top: 74, index: 2 }, // CB
+            { left: 85, top: 72, index: 4 }, // RD
+            { left: 25, top: 50, index: 5 }, // LMC
+            { left: 50, top: 56, index: 6 }, // CMC (Pivote)
+            { left: 75, top: 50, index: 7 }, // RMC
+            { left: 20, top: 24, index: 9 }, // EI (Extremo Izquierdo)
+            { left: 50, top: 18, index: 8 }, // DC (Delantero Centro)
+            { left: 80, top: 24, index: 10 } // ED (Extremo Derecho)
+          ];
+      }
+    }
+
+    // --- COMPONENTES DE RENDERIZADO ---
+
+    // Renderizar barra de pestañas
+    function renderTabsMenu() {
+      const tabs = [
+        { id: 'dashboard', label: 'Inicio', icon: 'globe' },
+        { id: 'matches', label: 'Partidos', icon: 'calendar' },
+        { id: 'stadiums', label: 'Estadios & Ciudades', icon: 'map-pin' },
+        { id: 'teams', label: 'Equipos, Tácticas & DTs', icon: 'users' },
+        { id: 'scorers', label: 'Goleadores', icon: 'award' },
+        { id: 'simulator', label: 'Simulador de Grupos', icon: 'trending-up' }
+      ];
+
+      const navContainer = document.getElementById('nav-tabs');
+      navContainer.innerHTML = tabs.map(tab => {
+        const isActive = state.activeTab === tab.id;
+        return `
+          <button
+            onclick="switchTab('${tab.id}')"
+            class="flex items-center gap-2 px-5 py-4 border-b-2 text-sm font-semibold transition-all duration-300 ${
+              isActive 
+                ? 'border-amber-500 text-amber-400 bg-amber-500/5' 
+                : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+            }"
+          >
+            <i data-lucide="${tab.icon}" class="w-4.5 h-4.5"></i>
+            ${tab.label}
+          </button>
+        `;
+      }).join('');
+    }
+
+    // 1. PESTAÑA: INICIO (DASHBOARD)
+    function renderDashboard() {
+      const content = document.getElementById('main-content');
+      content.innerHTML = `
+        <div class="space-y-8 animate-fadeIn">
+          <!-- HERO BANNER -->
+          <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-950 via-slate-900 to-amber-950 border border-slate-800 p-8 sm:p-12 shadow-2xl">
+            <div class="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
+            <div class="absolute bottom-0 left-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl -ml-20 -mb-20"></div>
+            
+            <div class="relative z-10 max-w-2xl space-y-4">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                <i data-lucide="trophy" class="w-3.5 h-3.5 text-amber-400"></i> Junio 11 - Julio 19, 2026
+              </span>
+              <h2 class="text-3xl sm:text-5xl font-black leading-tight tracking-tight">
+                La Copa Mundial de la <br />
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-200">
+                  FIFA™ Norteamérica 2026
+                </span>
+              </h2>
+              <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                ¡Bienvenido a la herramienta definitiva del fanático del fútbol! Explora los esquemas tácticos dinámicos de cada selección, el perfil detallado de cada Director Técnico, la tabla acumulada de los máximos artilleros del torneo y simula de forma interactiva el rumbo de las posiciones.
+              </p>
+              <div class="flex flex-wrap gap-3 pt-2">
+                <button 
+                  onclick="switchTab('teams')" 
+                  class="px-6 py-3 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-600 hover:to-yellow-500 text-slate-950 font-bold rounded-xl shadow-lg transition-transform hover:-translate-y-0.5 flex items-center gap-2"
+                >
+                  Ver Plantillas, Tácticas & DTs
+                  <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                </button>
+                <button 
+                  onclick="switchTab('simulator')" 
+                  class="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold rounded-xl border border-slate-700 transition-transform hover:-translate-y-0.5"
+                >
+                  Probar Simulador
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- RINCÓN DE ENERGÍA DIGESTIVA (Personalización Especial) -->
+          <div class="bg-slate-900 border border-emerald-500/20 rounded-2xl p-5 flex flex-col sm:flex-row items-center gap-5">
+            <div class="p-3.5 bg-emerald-500/10 rounded-2xl text-emerald-400 shrink-0">
+              <i data-lucide="utensils" class="w-7 h-7"></i>
+            </div>
+            <div class="text-center sm:text-left flex-1 space-y-1">
+              <h4 class="font-extrabold text-slate-100 text-sm flex items-center justify-center sm:justify-start gap-2">
+                <span class="text-emerald-400">☀️</span> Rincón de Energía Digestiva para el Aficionado
+              </h4>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                ¿Disfrutas de los partidos por la mañana? Mantén tu sistema digestivo ligero e hidratado con un desayuno premium: prepara tu clásico tazón de <strong>avena orgánica hidratada</strong> potenciada con una cucharada de <strong>proteína vegetal Sunwarrior en polvo</strong>. Es 100% libre de lácteos y lactosa, ideal para evitar cualquier malestar digestivo mientras mantienes el enfoque mental y la energía alta para gritar cada gol de tu selección.
+              </p>
+            </div>
+          </div>
+
+          <!-- CIFRAS CLAVE -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            ${[
+              { label: 'Países Sede', val: '3', desc: 'Canadá, México y EE. UU.', color: 'from-amber-500 to-amber-600' },
+              { label: 'Sistemas Tácticos', val: '3', desc: 'Esquemas interactivos', color: 'from-emerald-500 to-emerald-600' },
+              { label: 'Estadios Climatizados', val: '16', desc: 'Sedes de primer mundo', color: 'from-blue-500 to-blue-600' },
+              { label: 'Goleadores Clave', val: '5', desc: 'Lucha por la Bota de Oro', color: 'from-purple-500 to-purple-600' }
+            ].map(k => `
+              <div class="bg-slate-900 border border-slate-850 p-5 rounded-2xl flex flex-col justify-between hover:border-slate-800 transition-all">
+                <span class="text-xs text-slate-400 font-semibold tracking-wider uppercase">${k.label}</span>
+                <div class="my-2">
+                  <span class="text-4xl font-black bg-gradient-to-r ${k.color} text-transparent bg-clip-text">${k.val}</span>
+                </div>
+                <span class="text-xs text-slate-350">${k.desc}</span>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- MAPA INTERACTIVO & GOLEADORES MINI-CARD -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- MAP CONTAINER -->
+            <div class="lg:col-span-2 bg-slate-900 border border-slate-850 p-6 rounded-3xl space-y-4">
+              <div class="flex justify-between items-center">
+                <div>
+                  <h3 class="text-lg font-bold flex items-center gap-2">
+                    <i data-lucide="map-pin" class="text-amber-400"></i> Sedes en el Mapa de Norteamérica
+                  </h3>
+                  <p class="text-xs text-slate-400">Estadios equipados y climatizados con su gastronomía libre de lácteos sugerida.</p>
+                </div>
+                <button onclick="switchTab('stadiums')" class="text-xs text-amber-400 hover:underline flex items-center gap-1">
+                  Ver Detalles <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+
+              <!-- MAP SVG / PINS INTERACTIVOS -->
+              <div class="relative aspect-[16/9] bg-slate-950 rounded-2xl border border-slate-850 overflow-hidden flex items-center justify-center">
+                <div class="absolute inset-0 opacity-15 pointer-events-none">
+                  <div class="absolute top-[15%] left-[20%] w-32 h-32 bg-amber-500/10 rounded-full blur-3xl"></div>
+                  <div class="absolute bottom-[20%] left-[40%] w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl"></div>
+                </div>
+
+                <div class="absolute text-center opacity-10 font-black select-none pointer-events-none">
+                  <p class="text-3xl sm:text-5xl tracking-widest uppercase">Canadá • USA • México</p>
+                </div>
+
+                ${STADIUMS_DATA.map(stadium => `
+                  <button
+                    onclick="selectAndGoToStadium('${stadium.id}')"
+                    style="left: ${stadium.coords.x}%; top: ${stadium.coords.y}%;"
+                    class="absolute group -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-20"
+                  >
+                    <div class="p-1 rounded-full bg-slate-900 border border-amber-400/80 group-hover:bg-amber-400 transition-colors shadow-lg">
+                      <i data-lucide="map-pin" class="w-3.5 h-3.5 text-amber-400 group-hover:text-slate-950"></i>
+                    </div>
+                    <span class="hidden group-hover:block absolute top-6 bg-slate-900 text-slate-100 text-[10px] px-2 py-1 rounded border border-slate-800 whitespace-nowrap z-30 shadow-xl">
+                      ${stadium.city} (${stadium.flag})
+                    </span>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- TABLA DE GOLEADORES DESTACADA -->
+            <div class="bg-slate-900 border border-slate-850 p-6 rounded-3xl space-y-4">
+              <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold flex items-center gap-2">
+                  <i data-lucide="award" class="text-amber-400"></i> Máximos Goleadores
+                </h3>
+                <button onclick="switchTab('scorers')" class="text-xs text-amber-400 hover:underline">Ver Todo</button>
+              </div>
+              <p class="text-xs text-slate-400">Proyección para la codiciada Bota de Oro.</p>
+
+              <div class="space-y-3">
+                ${GOLEADORES_DATA.slice(0, 4).map(scorer => `
+                  <div class="flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-slate-850">
+                    <div class="flex items-center gap-3">
+                      <span class="text-sm font-black text-slate-500">#${scorer.rank}</span>
+                      <div>
+                        <p class="text-sm font-bold text-slate-100">${scorer.name}</p>
+                        <p class="text-xs text-slate-400">${scorer.flag} ${scorer.country} • ${scorer.club}</p>
+                      </div>
+                    </div>
+                    <span class="text-xs font-black text-amber-400 bg-amber-500/10 px-2 py-1 rounded-md">
+                      ${scorer.goals} G
+                    </span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function selectAndGoToStadium(id) {
+      state.selectedStadiumId = id;
+      switchTab('stadiums');
+    }
+
+    // 2. PESTAÑA: PARTIDOS & CALENDARIO
+    function renderMatches() {
+      const content = document.getElementById('main-content');
+      
+      const filteredMatches = state.matches.filter(m => {
+        const matchGroup = state.selectedGroup === 'All' || m.group === state.selectedGroup;
+        const matchQuery = m.home.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+                           m.away.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+                           m.city.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+                           m.stadiumName.toLowerCase().includes(state.searchQuery.toLowerCase());
+        return matchGroup && matchQuery;
+      });
+
+      content.innerHTML = `
+        <div class="space-y-6 animate-fadeIn">
+          <!-- FILTROS Y BÚSQUEDA -->
+          <div class="bg-slate-900 border border-slate-850 p-5 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="w-full md:w-1/3 relative">
+              <i data-lucide="search" class="absolute left-3 top-3.5 w-4 h-4 text-slate-450"></i>
+              <input
+                type="text"
+                id="matches-search"
+                placeholder="Buscar país o sede..."
+                value="${state.searchQuery}"
+                oninput="handleSearchInput(this.value)"
+                class="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-amber-500 text-sm"
+              />
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+              <span class="text-xs text-slate-400 font-semibold uppercase">Filtrar:</span>
+              ${['All', 'A', 'D'].map(group => `
+                <button
+                  onclick="selectGroupFilter('${group}')"
+                  class="px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                    state.selectedGroup === group 
+                      ? 'bg-amber-500 border-amber-500 text-slate-950 font-bold' 
+                      : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
+                  }"
+                >
+                  ${group === 'All' ? 'Todos' : `Grupo ${group}`}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- GRID DE PARTIDOS -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            ${filteredMatches.map(match => `
+              <div class="bg-slate-900 border border-slate-850 rounded-2xl p-5 flex flex-col justify-between space-y-4 hover:border-slate-800 transition-all">
+                <div class="flex justify-between items-center border-b border-slate-850 pb-3">
+                  <span class="text-xs font-bold bg-slate-950 px-2.5 py-1 rounded text-amber-400">
+                    ${match.stage}
+                  </span>
+                  <span class="text-xs text-slate-400 flex items-center gap-1">
+                    <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-400"></i>
+                    ${match.date}
+                  </span>
+                </div>
+
+                <div class="flex items-center justify-between py-1">
+                  <!-- LOCAL -->
+                  <div class="flex items-center gap-3 w-5/12">
+                    <span class="text-3xl">${match.homeFlag}</span>
+                    <span class="font-bold text-sm sm:text-base text-slate-100 truncate">${match.home}</span>
+                  </div>
+
+                  <!-- SCORE INPUTS -->
+                  <div class="flex items-center gap-1.5 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800">
+                    <input
+                      type="text"
+                      maxLength="2"
+                      placeholder="-"
+                      value="${match.predictedHome}"
+                      oninput="handleScoreChange(${match.id}, 'home', this.value)"
+                      class="w-7 text-center bg-transparent focus:outline-none text-sm font-black text-amber-400 placeholder:text-slate-600"
+                    />
+                    <span class="text-slate-500 text-xs font-semibold">VS</span>
+                    <input
+                      type="text"
+                      maxLength="2"
+                      placeholder="-"
+                      value="${match.predictedAway}"
+                      oninput="handleScoreChange(${match.id}, 'away', this.value)"
+                      class="w-7 text-center bg-transparent focus:outline-none text-sm font-black text-amber-400 placeholder:text-slate-600"
+                    />
+                  </div>
+
+                  <!-- VISITANTE -->
+                  <div class="flex items-center justify-end gap-3 w-5/12 text-right">
+                    <span class="font-bold text-sm sm:text-base text-slate-100 truncate">${match.away}</span>
+                    <span class="text-3xl">${match.awayFlag}</span>
+                  </div>
+                </div>
+
+                <!-- INFORMACIÓN DE SEDE -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-950/50 p-3 rounded-xl gap-2 text-xs border border-slate-850">
+                  <div class="flex items-center gap-1.5 text-slate-400">
+                    <i data-lucide="map-pin" class="w-3.5 h-3.5 text-red-400"></i>
+                    <span>${match.stadiumName}, <strong>${match.city}</strong></span>
+                  </div>
+                  <button 
+                    onclick="selectAndGoToStadium('${match.stadiumId}')"
+                    class="text-amber-400 hover:underline font-bold self-end sm:self-auto"
+                  >
+                    Guía de la Ciudad &rarr;
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+
+      // Mantener foco del buscador al re-renderizar
+      const searchInput = document.getElementById('matches-search');
+      if (searchInput) {
+        searchInput.focus();
+        // Colocar cursor al final
+        const val = searchInput.value;
+        searchInput.value = '';
+        searchInput.value = val;
+      }
+    }
+
+    function handleSearchInput(val) {
+      state.searchQuery = val;
+      renderMatches();
+    }
+
+    function selectGroupFilter(group) {
+      state.selectedGroup = group;
+      renderMatches();
+    }
+
+    // 3. PESTAÑA: ESTADIOS & CIUDADES
+    function renderStadiums() {
+      const content = document.getElementById('main-content');
+      const selectedStadium = STADIUMS_DATA.find(s => s.id === state.selectedStadiumId) || STADIUMS_DATA[0];
+
+      content.innerHTML = `
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fadeIn">
+          <!-- LISTADO DE ESTADIOS -->
+          <div class="bg-slate-900 border border-slate-850 rounded-3xl p-5 space-y-4 max-h-[750px] overflow-y-auto">
+            <h3 class="text-lg font-black tracking-tight flex items-center gap-2">
+              <i data-lucide="map-pin" class="text-amber-400"></i> Sedes Oficiales 2026
+            </h3>
+            <p class="text-xs text-slate-400">Haz clic en una sede para ver detalles del clima, altura, guía turística y partidos programados.</p>
+            
+            <div class="space-y-2">
+              ${STADIUMS_DATA.map(stadium => {
+                const isSelected = stadium.id === selectedStadium.id;
+                return `
+                  <button
+                    onclick="selectStadium('${stadium.id}')"
+                    class="w-full flex items-center justify-between p-3.5 rounded-2xl border text-left transition-all ${
+                      isSelected 
+                        ? 'bg-amber-500 border-amber-500 text-slate-950 font-bold' 
+                        : 'bg-slate-950 border-slate-850 text-slate-300 hover:border-slate-800'
+                    }"
+                  >
+                    <div>
+                      <p class="text-sm font-black">${stadium.name}</p>
+                      <p class="text-xs ${isSelected ? 'text-slate-800' : 'text-slate-400'}">
+                        ${stadium.city}, ${stadium.country}
+                      </p>
+                    </div>
+                    <span class="text-xl">${stadium.flag}</span>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <!-- DETALLE DEL ESTADIO SELECCIONADO -->
+          <div class="lg:col-span-2 space-y-6">
+            <div class="bg-slate-900 border border-slate-850 rounded-3xl p-6 md:p-8 relative overflow-hidden">
+              <div class="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+              <!-- Header -->
+              <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-850 pb-5">
+                <div>
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded bg-amber-500/10 text-amber-400 text-xs font-semibold">
+                    ${selectedStadium.country} ${selectedStadium.flag}
+                  </span>
+                  <h2 class="text-2xl sm:text-3xl font-black text-slate-100 tracking-tight mt-1">
+                    ${selectedStadium.name}
+                  </h2>
+                  <p class="text-sm text-slate-400">${selectedStadium.city}</p>
+                </div>
+                <div class="text-left sm:text-right">
+                  <p class="text-xs text-slate-400">Capacidad Oficial</p>
+                  <p class="text-2xl font-black text-amber-400">${selectedStadium.capacity} espec.</p>
+                </div>
+              </div>
+
+              <!-- Información y Gastronomía -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div class="space-y-4">
+                  <div class="p-4 bg-slate-950 rounded-2xl border border-slate-850">
+                    <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                      <i data-lucide="info" class="w-3.5 h-3.5"></i> Ficha Técnica e Historia
+                    </h4>
+                    <p class="text-xs sm:text-sm text-slate-350 leading-relaxed">
+                      ${selectedStadium.features}
+                    </p>
+                  </div>
+
+                  <div class="p-4 bg-slate-950 rounded-2xl border border-slate-850">
+                    <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                      <i data-lucide="activity" class="w-3.5 h-3.5"></i> Clima y Altitud Local
+                    </h4>
+                    <p class="text-xs sm:text-sm text-slate-350 leading-relaxed">
+                      ${selectedStadium.climate}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Turismo & Alimentación Saludable -->
+                <div class="p-4 bg-slate-950 rounded-2xl border border-slate-850 space-y-3">
+                  <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <i data-lucide="compass" class="w-3.5 h-3.5"></i> Guía Gastronómica & Turística
+                  </h4>
+                  <p class="text-xs sm:text-sm text-slate-350 leading-relaxed">
+                    ${selectedStadium.touristInfo}
+                  </p>
+                  <div class="pt-2 border-t border-slate-800 flex items-center gap-2">
+                    <span class="text-[10px] text-slate-400 font-semibold uppercase">Recomendación Saludable:</span>
+                    <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-bold">
+                      Guacamole puro, tacos al natural y carnes asadas sin adición de grasas lácteas.
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Partidos Programados en esta Sede -->
+              <div class="mt-8 border-t border-slate-850 pt-6">
+                <h3 class="text-sm font-bold text-slate-200 mb-3 uppercase tracking-wider">
+                  Partidos programados en este recinto
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  ${state.matches
+                    .filter(m => m.stadiumId === selectedStadium.id)
+                    .map(m => `
+                      <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-850 flex items-center justify-between text-xs">
+                        <div>
+                          <p class="font-bold text-slate-200">${m.stage}</p>
+                          <p class="text-slate-450">${m.date} • ${m.time}</p>
+                        </div>
+                        <div class="flex items-center gap-2 font-black text-amber-400">
+                          <span>${m.homeFlag} ${m.home}</span>
+                          <span>vs</span>
+                          <span>${m.away} ${m.awayFlag}</span>
+                        </div>
+                      </div>
+                    `).join('')}
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function selectStadium(id) {
+      state.selectedStadiumId = id;
+      renderStadiums();
+    }
+
+    // 4. PESTAÑA: EQUIPOS, TÁCTICAS & DTs
+    function renderTeams() {
+      const content = document.getElementById('main-content');
+      const selectedTeam = TEAMS_DATA.find(t => t.id === state.selectedTeamId) || TEAMS_DATA[0];
+      const selectedPlayer = selectedTeam.players[state.selectedPlayerIndex] || selectedTeam.players[0];
+
+      content.innerHTML = `
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-fadeIn">
+          <!-- LISTA DE SELECCIONES -->
+          <div class="lg:col-span-3 bg-slate-900 border border-slate-850 rounded-3xl p-5 space-y-3 max-h-[750px] overflow-y-auto">
+            <h3 class="text-lg font-black tracking-tight flex items-center gap-2">
+              <i data-lucide="users" class="text-amber-400"></i> Selecciones
+            </h3>
+            <p class="text-xs text-slate-400">Explora la táctica, alineaciones en vivo y los datos del seleccionador nacional.</p>
+            
+            <div class="space-y-2">
+              ${TEAMS_DATA.map(t => {
+                const isSelected = t.id === selectedTeam.id;
+                return `
+                  <button
+                    onclick="selectTeam('${t.id}')"
+                    class="w-full flex items-center justify-between p-3.5 rounded-2xl border text-left transition-all ${
+                      isSelected 
+                        ? 'bg-amber-500 border-amber-500 text-slate-950 font-bold' 
+                        : 'bg-slate-950 border-slate-850 text-slate-300 hover:border-slate-800'
+                    }"
+                  >
+                    <div class="flex items-center gap-3">
+                      <span class="text-2xl">${t.flag}</span>
+                      <div>
+                        <p class="text-sm font-black">${t.name}</p>
+                        <p class="text-xs ${isSelected ? 'text-slate-800' : 'text-slate-400'}">
+                          Grupo ${t.group} • Ranking #${t.ranking}
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <!-- CONTENIDO DETALLADO (DIAGRAMA + FICHA) -->
+          <div class="lg:col-span-9 space-y-6">
+            <!-- BANNER DEL EQUIPO -->
+            <div class="bg-slate-900 border border-slate-850 rounded-3xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div class="flex items-center gap-4">
+                <span class="text-5xl">${selectedTeam.flag}</span>
+                <div>
+                  <h2 class="text-2xl font-black text-slate-100">${selectedTeam.name}</h2>
+                  <p class="text-xs text-slate-400">Esquema mundialista base: <strong>${selectedTeam.defaultFormation}</strong></p>
+                </div>
+              </div>
+
+              <!-- Selector de Formación -->
+              <div class="flex items-center gap-2 bg-slate-950 p-2 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-450 font-semibold px-2">Estrategia:</span>
+                ${['4-3-3', '4-2-3-1', '4-4-2'].map(form => `
+                  <button
+                    onclick="changeFormation('${form}')"
+                    class="px-2.5 py-1 rounded text-xs font-bold transition-all ${
+                      state.currentFormation === form 
+                        ? 'bg-amber-500 text-slate-950 shadow' 
+                        : 'text-slate-400 hover:text-slate-200'
+                    }"
+                  >
+                    ${form}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- DIAGRAMA INTERACTIVO Y ESTADÍSTICAS -->
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              
+              <!-- CAMPO DE JUEGO -->
+              <div class="bg-gradient-to-b from-emerald-950 to-slate-950 border border-emerald-900/30 rounded-3xl p-4 flex flex-col items-center relative min-h-[480px]">
+                <div class="absolute inset-0 opacity-10 pointer-events-none border-2 border-dashed border-white m-4 rounded-2xl"></div>
+                
+                <!-- Líneas de la cancha -->
+                <div class="absolute top-4 left-4 right-4 bottom-4 border border-white/10 rounded-xl pointer-events-none">
+                  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-16 border-b border-l border-r border-white/15"></div>
+                  <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-48 h-16 border-t border-l border-r border-white/15"></div>
+                  <div class="absolute top-1/2 left-0 right-0 h-px bg-white/10"></div>
+                  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full border border-white/10"></div>
+                </div>
+
+                <span class="text-[10px] text-emerald-400 font-black tracking-wider uppercase mb-3 z-10 flex items-center gap-1">
+                  <i data-lucide="activity" class="w-3.5 h-3.5 text-amber-400 animate-pulse"></i> Campo Táctico (${state.currentFormation})
+                </span>
+
+                <!-- Renderizado de Jugadores en el campo -->
+                <div class="w-full h-[400px] relative z-20">
+                  ${getPlayerPositions(state.currentFormation).map(pos => {
+                    const player = selectedTeam.players[pos.index];
+                    if (!player) return '';
+                    const isSelected = selectedPlayer.name === player.name;
+                    return `
+                      <button
+                        onclick="selectPlayer(${pos.index})"
+                        style="left: ${pos.left}%; top: ${pos.top}%;"
+                        class="absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center group transition-transform duration-300 hover:scale-110"
+                      >
+                        <div class="w-8 h-8 rounded-full border flex items-center justify-center font-bold text-xs transition-all shadow-md ${
+                          isSelected 
+                            ? 'bg-amber-500 border-amber-300 text-slate-950 scale-110 ring-4 ring-amber-500/20' 
+                            : 'bg-slate-900 border-emerald-500/50 text-slate-100 group-hover:border-amber-400'
+                        }">
+                          ${player.number}
+                        </div>
+                        <div class="mt-1 bg-slate-950/90 text-[9px] text-slate-200 px-1.5 py-0.5 rounded border border-slate-800 whitespace-nowrap">
+                          ${player.name.split(' ').pop()}
+                        </div>
+                      </button>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+
+              <!-- PANEL DEL JUGADOR & DEL TÉCNICO -->
+              <div class="space-y-6">
+                <!-- DETALLE JUGADOR SELECCIONADO -->
+                <div class="bg-slate-900 border border-slate-850 rounded-3xl p-5 space-y-4">
+                  <div class="flex justify-between items-start">
+                    <div class="flex items-center gap-3">
+                      <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-black text-lg border border-amber-500/20">
+                        #${selectedPlayer.number}
+                      </div>
+                      <div>
+                        <h4 class="font-black text-slate-100 text-base">${selectedPlayer.name}</h4>
+                        <span class="text-xs text-slate-400 uppercase font-semibold bg-slate-950 px-2.5 py-1 rounded">
+                          ${selectedPlayer.pos} • ${selectedPlayer.role}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-[10px] text-slate-400 block font-semibold uppercase">Rating</span>
+                      <span class="text-lg font-black text-amber-400">${selectedPlayer.rating}</span>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-3 bg-slate-950 p-3 rounded-2xl text-xs border border-slate-850">
+                    <div>
+                      <p class="text-slate-400 mb-0.5">Club Actual</p>
+                      <p class="font-bold text-slate-200">${selectedPlayer.club}</p>
+                    </div>
+                    <div>
+                      <p class="text-slate-400 mb-0.5">Selección Nacional</p>
+                      <p class="font-bold text-slate-200">${selectedTeam.flag} ${selectedTeam.name}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- FICHA TÉCNICA DEL DT -->
+                <div class="bg-slate-900 border border-slate-850 rounded-3xl p-6 relative overflow-hidden">
+                  <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none"></div>
+                  
+                  <div class="flex items-center gap-2 mb-4">
+                    <i data-lucide="shield" class="text-amber-400"></i>
+                    <h4 class="text-xs font-black text-amber-400 uppercase tracking-wider">
+                      Director Técnico Oficial (DT)
+                    </h4>
+                  </div>
+
+                  <div class="space-y-4">
+                    <div>
+                      <h3 class="text-lg font-black text-slate-100">${selectedTeam.coach.name}</h3>
+                      <p class="text-xs text-slate-400">Nacionalidad: ${selectedTeam.coach.nationality} • ${selectedTeam.coach.age} años</p>
+                    </div>
+
+                    <div class="space-y-3 text-xs">
+                      <div class="p-3 bg-slate-950 rounded-xl border border-slate-850">
+                        <p class="text-amber-400 font-bold mb-0.5 text-[10px] uppercase tracking-wider">Estilo de Juego</p>
+                        <p class="text-slate-350 leading-relaxed">${selectedTeam.coach.style}</p>
+                      </div>
+
+                      <div class="p-3 bg-slate-950 rounded-xl border border-slate-850">
+                        <p class="text-emerald-400 font-bold mb-0.5 text-[10px] uppercase tracking-wider">Logros Principales</p>
+                        <p class="text-slate-350 leading-relaxed">${selectedTeam.coach.achievements}</p>
+                      </div>
+                    </div>
+
+                    <p class="text-xs text-slate-400 leading-relaxed italic border-t border-slate-800 pt-3">
+                      "${selectedTeam.coach.bio}"
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    function selectTeam(id) {
+      state.selectedTeamId = id;
+      state.selectedPlayerIndex = 8; // Reset a delantero centro al cambiar equipo
+      const selectedTeam = TEAMS_DATA.find(t => t.id === id);
+      if (selectedTeam) {
+        state.currentFormation = selectedTeam.defaultFormation;
+      }
+      renderTeams();
+    }
+
+    function selectPlayer(idx) {
+      state.selectedPlayerIndex = idx;
+      renderTeams();
+    }
+
+    // 5. PESTAÑA: GOLEADORES
+    function renderScorers() {
+      const content = document.getElementById('main-content');
+      content.innerHTML = `
+        <div class="max-w-4xl mx-auto space-y-6 animate-fadeIn">
+          <!-- CABECERA -->
+          <div class="bg-slate-900 border border-slate-850 p-6 rounded-3xl flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+              <h3 class="text-lg font-black flex items-center gap-2">
+                <i data-lucide="award" class="text-amber-400"></i> Tabla de Goleadores
+              </h3>
+              <p class="text-xs text-slate-400">Seguimiento en vivo para el premio Bota de Oro del Mundial 2026.</p>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] text-slate-450 uppercase block">Trofeo Oficial</span>
+              <span class="text-sm font-black text-amber-400">Bota de Oro Adidas™</span>
+            </div>
+          </div>
+
+          <!-- TABLA -->
+          <div class="bg-slate-900 border border-slate-850 rounded-3xl overflow-hidden shadow-lg">
+            <div class="grid grid-cols-12 text-xs font-bold text-slate-450 p-4 border-b border-slate-850 uppercase tracking-wider">
+              <span class="col-span-1 text-center">Pos</span>
+              <span class="col-span-4">Jugador</span>
+              <span class="col-span-3">País / Club</span>
+              <span class="col-span-1 text-center">PJ</span>
+              <span class="col-span-1 text-center">Asist</span>
+              <span class="col-span-2 text-center text-amber-400">Goles</span>
+            </div>
+
+            <div class="divide-y divide-slate-850">
+              ${GOLEADORES_DATA.map((scorer, idx) => `
+                <div class="grid grid-cols-12 text-sm p-4 items-center hover:bg-slate-800/10 transition-colors">
+                  <span class="col-span-1 text-center font-black text-slate-400 text-xs sm:text-sm">
+                    ${idx === 0 ? '🏆' : `#${scorer.rank}`}
+                  </span>
+                  
+                  <span class="col-span-4 flex items-center gap-2 font-bold text-slate-100">
+                    <span class="text-xl">${scorer.flag}</span>
+                    ${scorer.name}
+                  </span>
+
+                  <span class="col-span-3 text-xs text-slate-350">
+                    ${scorer.country} <span class="text-slate-550">• ${scorer.club}</span>
+                  </span>
+
+                  <span class="col-span-1 text-center font-medium text-slate-300">
+                    ${scorer.matches}
+                  </span>
+
+                  <span class="col-span-1 text-center font-medium text-slate-300">
+                    ${scorer.assists}
+                  </span>
+
+                  <span class="col-span-2 text-center font-black text-amber-400 bg-amber-500/5 py-1.5 rounded-xl">
+                    ${scorer.goals} G
+                  </span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="p-4 bg-slate-900/45 border border-slate-850 rounded-2xl text-xs text-slate-400 flex items-start gap-3">
+            <i data-lucide="info" class="w-5 h-5 text-amber-400 shrink-0"></i>
+            <span>
+              <strong>Criterio oficial de desempate FIFA:</strong> Si dos o más jugadores terminan empatados en cantidad de goles anotados, la Bota de Oro se entregará al jugador con mayor número de asistencias, o en su defecto, al que haya disputado menos minutos acumulados durante el certamen.
+            </span>
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    // 6. PESTAÑA: SIMULADOR DE GRUPOS
+    function renderSimulator() {
+      const content = document.getElementById('main-content');
+      content.innerHTML = `
+        <div class="space-y-6 animate-fadeIn">
+          <!-- CABECERA SIMULADOR -->
+          <div class="bg-gradient-to-r from-amber-600/15 via-slate-900 to-indigo-950/20 border border-slate-850 p-6 rounded-3xl flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+              <h3 class="text-xl font-bold flex items-center gap-2">
+                <i data-lucide="trending-up" class="text-amber-400"></i> Simulador de Fase de Grupos
+              </h3>
+              <p class="text-xs text-slate-400">Ingresa tus predicciones de marcadores. Las posiciones, diferencia de goles (DG) y puntos (Pts) se recalcularán al instante.</p>
+            </div>
+            <button
+              onclick="resetSimulator()"
+              class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded-xl border border-slate-700 flex items-center gap-1.5 transition-colors"
+            >
+              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+              Reiniciar Simulador
+            </button>
+          </div>
+
+          <!-- GRUPOS EN PARALELO -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- GRUPO A -->
+            <div class="bg-slate-900 border border-slate-850 p-6 rounded-3xl space-y-6">
+              <div class="border-b border-slate-850 pb-3 flex justify-between items-center">
+                <h4 class="font-black text-lg text-slate-100">GRUPO A</h4>
+                <span class="text-[10px] font-bold bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded">Sede Principal: México</span>
+              </div>
+
+              <!-- Tabla de Posiciones Grupo A -->
+              <div class="space-y-2">
+                <div class="grid grid-cols-12 text-xs font-bold text-slate-450 px-3 uppercase tracking-wider">
+                  <span class="col-span-1">#</span>
+                  <span class="col-span-5">Selección</span>
+                  <span class="col-span-2 text-center">PJ</span>
+                  <span class="col-span-2 text-center">DG</span>
+                  <span class="col-span-2 text-center">Pts</span>
+                </div>
+
+                ${state.simulatedStandings['A'].map((t, idx) => `
+                  <div 
+                    class="grid grid-cols-12 text-sm px-3 py-2.5 rounded-xl border items-center ${
+                      idx < 2 ? 'bg-amber-500/5 border-amber-500/20 text-slate-100' : 'bg-slate-950/40 border-slate-850 text-slate-450'
+                    }"
+                  >
+                    <span class="col-span-1 font-bold">${idx + 1}</span>
+                    <span class="col-span-5 flex items-center gap-2 font-bold">
+                      <span class="text-xl">${t.flag}</span>
+                      ${t.name}
+                    </span>
+                    <span class="col-span-2 text-center font-semibold">${t.pj}</span>
+                    <span class="col-span-2 text-center font-semibold">${t.gd > 0 ? `+${t.gd}` : t.gd}</span>
+                    <span class="col-span-2 text-center font-black ${idx < 2 ? 'text-amber-400' : ''}">${t.pts}</span>
+                  </div>
+                `).join('')}
+              </div>
+
+              <!-- Partidos Grupo A -->
+              <div class="space-y-3 pt-4 border-t border-slate-850">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Predicción de Marcadores</p>
+                ${state.matches
+                  .filter(m => m.group === 'A')
+                  .map(m => `
+                    <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-850 flex items-center justify-between text-xs">
+                      <div class="w-5/12 font-bold flex items-center gap-2">
+                        <span class="text-xl">${m.homeFlag}</span>
+                        <span class="truncate">${m.home}</span>
+                      </div>
+                      
+                      <!-- Contenedor inputs -->
+                      <div class="flex items-center gap-1.5">
+                        <input
+                          type="text"
+                          maxLength="2"
+                          placeholder="-"
+                          value="${m.predictedHome}"
+                          oninput="handleScoreChange(${m.id}, 'home', this.value)"
+                          class="w-8 text-center bg-slate-900 focus:outline-none py-1 rounded border border-slate-800 text-sm font-black text-amber-400 placeholder:text-slate-600"
+                        />
+                        <span class="text-slate-500 text-[10px] font-semibold">VS</span>
+                        <input
+                          type="text"
+                          maxLength="2"
+                          placeholder="-"
+                          value="${m.predictedAway}"
+                          oninput="handleScoreChange(${m.id}, 'away', this.value)"
+                          class="w-8 text-center bg-slate-900 focus:outline-none py-1 rounded border border-slate-800 text-sm font-black text-amber-400 placeholder:text-slate-600"
+                        />
+                      </div>
+
+                      <div class="w-5/12 font-bold flex items-center justify-end gap-2 text-right">
+                        <span class="truncate">${m.away}</span>
+                        <span class="text-xl">${m.awayFlag}</span>
+                      </div>
+                    </div>
+                  `).join('')}
+              </div>
+            </div>
+
+            <!-- GRUPO D -->
+            <div class="bg-slate-900 border border-slate-850 p-6 rounded-3xl space-y-6">
+              <div class="border-b border-slate-850 pb-3 flex justify-between items-center">
+                <h4 class="font-black text-lg text-slate-100">GRUPO D</h4>
+                <span class="text-[10px] font-bold bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded">Sede Principal: EE. UU.</span>
+              </div>
+
+              <!-- Tabla de Posiciones Grupo D -->
+              <div class="space-y-2">
+                <div class="grid grid-cols-12 text-xs font-bold text-slate-450 px-3 uppercase tracking-wider">
+                  <span class="col-span-1">#</span>
+                  <span class="col-span-5">Selección</span>
+                  <span class="col-span-2 text-center">PJ</span>
+                  <span class="col-span-2 text-center">DG</span>
+                  <span class="col-span-2 text-center">Pts</span>
+                </div>
+
+                ${state.simulatedStandings['D'].map((t, idx) => `
+                  <div 
+                    class="grid grid-cols-12 text-sm px-3 py-2.5 rounded-xl border items-center ${
+                      idx < 2 ? 'bg-amber-500/5 border-amber-500/20 text-slate-100' : 'bg-slate-950/40 border-slate-850 text-slate-450'
+                    }"
+                  >
+                    <span class="col-span-1 font-bold">${idx + 1}</span>
+                    <span class="col-span-5 flex items-center gap-2 font-bold">
+                      <span class="text-xl">${t.flag}</span>
+                      ${t.name}
+                    </span>
+                    <span class="col-span-2 text-center font-semibold">${t.pj}</span>
+                    <span class="col-span-2 text-center font-semibold">${t.gd > 0 ? `+${t.gd}` : t.gd}</span>
+                    <span class="col-span-2 text-center font-black ${idx < 2 ? 'text-amber-400' : ''}">${t.pts}</span>
+                  </div>
+                `).join('')}
+              </div>
+
+              <!-- Partidos Grupo D -->
+              <div class="space-y-3 pt-4 border-t border-slate-850">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Predicción de Marcadores</p>
+                ${state.matches
+                  .filter(m => m.group === 'D')
+                  .map(m => `
+                    <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-850 flex items-center justify-between text-xs">
+                      <div class="w-5/12 font-bold flex items-center gap-2">
+                        <span class="text-xl">${m.homeFlag}</span>
+                        <span class="truncate">${m.home}</span>
+                      </div>
+                      
+                      <!-- Contenedor inputs -->
+                      <div class="flex items-center gap-1.5">
+                        <input
+                          type="text"
+                          maxLength="2"
+                          placeholder="-"
+                          value="${m.predictedHome}"
+                          oninput="handleScoreChange(${m.id}, 'home', this.value)"
+                          class="w-8 text-center bg-slate-900 focus:outline-none py-1 rounded border border-slate-800 text-sm font-black text-amber-400 placeholder:text-slate-600"
+                        />
+                        <span class="text-slate-500 text-[10px] font-semibold">VS</span>
+                        <input
+                          type="text"
+                          maxLength="2"
+                          placeholder="-"
+                          value="${m.predictedAway}"
+                          oninput="handleScoreChange(${m.id}, 'away', this.value)"
+                          class="w-8 text-center bg-slate-900 focus:outline-none py-1 rounded border border-slate-800 text-sm font-black text-amber-400 placeholder:text-slate-600"
+                        />
+                      </div>
+
+                      <div class="w-5/12 font-bold flex items-center justify-end gap-2 text-right">
+                        <span class="truncate">${m.away}</span>
+                        <span class="text-xl">${m.awayFlag}</span>
+                      </div>
+                    </div>
+                  `).join('')}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    // --- RENDERIZADO GLOBAL ---
+    function renderApp() {
+      renderTabsMenu();
+      
+      switch(state.activeTab) {
+        case 'matches':
+          renderMatches();
+          break;
+        case 'stadiums':
+          renderStadiums();
+          break;
+        case 'teams':
+          renderTeams();
+          break;
+        case 'scorers':
+          renderScorers();
+          break;
+        case 'simulator':
+          renderSimulator();
+          break;
+        case 'dashboard':
+        default:
+          renderDashboard();
+          break;
+      }
+    }
+
+    // Inicializar la aplicación al cargar la página
+    window.onload = function() {
+      recalculateStandings();
+      renderApp();
+    };
+  </script>
+</body>
+</html>
